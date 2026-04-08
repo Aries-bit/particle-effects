@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D粒子手势交互系统</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #050510;
+            font-family: sans-serif;
+        }
+        #webcam {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 240px;
+            height: 180px;
+            border-radius: 8px;
+            z-index: 10;
+            transform: scaleX(-1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        #ui {
+            position: absolute;
+            top: 200px;
+            left: 10px;
+            color: rgba(255, 255, 255, 0.8);
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 8px;
+            pointer-events: none;
+        }
+        .status { margin: 5px 0; }
+        .highlight { color: #00ffcc; font-weight: bold; }
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            z-index: 20;
+        }
+    </style>
+    
+    <!-- 设置Import Map用于加载Three.js -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+<body>
+    <div id="loading">加载模型与资源中...</div>
+    <video id="webcam" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
+    
+    <div id="ui">
+        <div class="status">手势识别状态: <span id="gesture-state" class="highlight">无</span></div>
+        <div class="status">双手张合度: <span id="scale-state" class="highlight">1.0</span></div>
+        <div class="status" style="font-size: 12px; margin-top: 10px; color: #aaa; line-height: 1.5;">
+            操作提示 (进阶版):<br>
+            - 🌟 <strong>【缩放变色】</strong> 张合双手控制大小，转动手腕改变粒子颜色<br>
+            - 🧲 <strong>【引力场】</strong> 伸出1根手指(食指)：指尖吸引粒子<br>
+            - 🛡️ <strong>【斥力场】</strong> 伸出5指全开：掌心击退粒子<br>
+            - ✨ <strong>【魔法星】</strong> 伸出食指和拇指(手枪手势)：变成星星<br>
+            - ❤️ <strong>【比心心】</strong> 双手食指和拇指相接：变成爱心<br>
+            - 🔢 <strong>【数字形】</strong> 伸出2或3根手指：显示对应数字
+        </div>
+    </div>
+
+    <script type="module" src="./main.js"></script>
+</body>
+</html>
