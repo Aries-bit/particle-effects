@@ -145,7 +145,7 @@ function loadFontsAndTargets() {
             createTextTargets('4', states.FOUR);
             
             // Text for Middle Finger
-            createTextTargets('F**K', states.MIDDLE);
+            createTextTargets('FUCK', states.MIDDLE);
             
             // Create Heart Targets
             for (let i = 0; i < numPoints; i++) {
