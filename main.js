@@ -275,19 +275,35 @@ function initSpeech() {
         }
 
         // Keywords for MASK mode
-        const maskKeywords = ['mask', 'make', 'mac', 'marc', '面具', '马', '码', '吗', '麦'];
+        const maskKeywords = ['mask', 'make', 'mac', 'marc', '面具', '马克', '码可'];
         // Keywords for FINGER mode
-        const fingerKeywords = ['finger', 'hand', 'fine', 'thing', '手指', '手势', '返回', '手'];
+        const fingerKeywords = ['finger', 'hand', 'fine', 'thing', '手指', '手势', '返回'];
 
-        if (maskKeywords.some(k => text.includes(k))) {
-            if (currentMode !== 'MASK') {
-                switchMode('MASK');
-                if (debugEl) debugEl.innerText = "✅ 命中关键词！已切换到: MASK 模式";
-            }
-        } else if (fingerKeywords.some(k => text.includes(k))) {
-            if (currentMode !== 'FINGER') {
-                switchMode('FINGER');
-                if (debugEl) debugEl.innerText = "✅ 命中关键词！已切换到: FINGER 模式";
+        // Find the index of the latest occurrence of each keyword to know which was spoken last
+        let lastMaskIndex = -1;
+        maskKeywords.forEach(k => {
+            const idx = text.lastIndexOf(k);
+            if (idx > lastMaskIndex) lastMaskIndex = idx;
+        });
+
+        let lastFingerIndex = -1;
+        fingerKeywords.forEach(k => {
+            const idx = text.lastIndexOf(k);
+            if (idx > lastFingerIndex) lastFingerIndex = idx;
+        });
+
+        // Switch to whichever command was spoken LAST
+        if (lastMaskIndex > -1 || lastFingerIndex > -1) {
+            if (lastMaskIndex > lastFingerIndex) {
+                if (currentMode !== 'MASK') {
+                    switchMode('MASK');
+                    if (debugEl) debugEl.innerText = "✅ 命中关键词！已切换到: MASK 模式";
+                }
+            } else {
+                if (currentMode !== 'FINGER') {
+                    switchMode('FINGER');
+                    if (debugEl) debugEl.innerText = "✅ 命中关键词！已切换到: FINGER 模式";
+                }
             }
         }
     };
