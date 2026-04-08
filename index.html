@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D粒子手势交互系统</title>
+    <title>3D粒子声控交互系统</title>
     <style>
         body {
             margin: 0;
@@ -40,9 +40,11 @@
             padding: 10px;
             border-radius: 8px;
             pointer-events: none;
+            width: 280px;
         }
         .status { margin: 5px 0; }
         .highlight { color: #00ffcc; font-weight: bold; }
+        .mode-active { color: #ffcc00; text-shadow: 0 0 5px #ffcc00; }
         #loading {
             position: absolute;
             top: 50%;
@@ -52,9 +54,22 @@
             font-size: 24px;
             z-index: 20;
         }
+        #speech-indicator {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 255, 204, 0.2);
+            color: #00ffcc;
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: 1px solid #00ffcc;
+            font-size: 14px;
+            z-index: 10;
+            transition: all 0.3s;
+        }
     </style>
     
-    <!-- 设置Import Map用于加载Three.js -->
     <script type="importmap">
     {
         "imports": {
@@ -65,21 +80,24 @@
     </script>
 </head>
 <body>
-    <div id="loading">加载模型与资源中...</div>
+    <div id="loading">加载AI模型中...</div>
     <video id="webcam" autoplay playsinline></video>
     <canvas id="canvas"></canvas>
     
+    <div id="speech-indicator">🎤 正在聆听关键词: "Mark" 或 "Finger"</div>
+
     <div id="ui">
-        <div class="status">手势识别状态: <span id="gesture-state" class="highlight">无</span></div>
-        <div class="status">双手张合度: <span id="scale-state" class="highlight">1.0</span></div>
+        <div class="status">当前模式: <span id="current-mode" class="mode-active">FINGER (手势)</span></div>
+        <div class="status">识别状态: <span id="gesture-state" class="highlight">等待中</span></div>
         <div class="status" style="font-size: 12px; margin-top: 10px; color: #aaa; line-height: 1.5;">
-            操作提示 (进阶版):<br>
-            - 🌟 <strong>【缩放变色】</strong> 张合双手控制大小，转动手腕改变粒子颜色<br>
-            - 🧲 <strong>【引力场】</strong> 伸出1根手指(食指)：指尖吸引粒子<br>
-            - 🛡️ <strong>【斥力场】</strong> 伸出5指全开：掌心击退粒子<br>
-            - ✨ <strong>【魔法星】</strong> 伸出食指和拇指(手枪手势)：变成星星<br>
-            - ❤️ <strong>【比心心】</strong> 双手食指和拇指相接：变成爱心<br>
-            - 🔢 <strong>【数字形】</strong> 伸出2或3根手指：显示对应数字
+            <strong>🎙️ 声控指令:</strong><br>
+            - 喊 <strong>"Mark"</strong> (或 Mark): 开启【粒子面具】模式<br>
+            - 喊 <strong>"Finger"</strong>: 切换回【手势控制】模式<br><br>
+            <strong>🎭 面具模式玩法:</strong><br>
+            - 粒子会贴合在你的五官上<br>
+            - 张嘴、眨眼会让粒子产生动态反应<br><br>
+            <strong>🖐️ 手势模式玩法:</strong><br>
+            - 1/2/3/比心/星星/引力/斥力
         </div>
     </div>
 
