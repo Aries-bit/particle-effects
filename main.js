@@ -181,7 +181,7 @@ async function initMediaPipe() {
         // Hand model
         handLandmarker = await HandLandmarker.createFromOptions(vision, {
             baseOptions: {
-                modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+                modelAssetPath: "./models/hand_landmarker.task",
                 delegate: "GPU"
             },
             runningMode: "VIDEO",
@@ -191,7 +191,7 @@ async function initMediaPipe() {
         // Face model
         faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
             baseOptions: {
-                modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+                modelAssetPath: "./models/face_landmarker.task",
                 delegate: "GPU"
             },
             outputFaceBlendshapes: true,
