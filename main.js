@@ -225,13 +225,14 @@ function initSpeech() {
     }
 
     const recognition = new SpeechRecognition();
-    recognition.lang = 'en-US'; 
+    // 使用中文能更好地在当前系统环境下被触发，即使说英文词，浏览器也会尝试去拼写出来
+    recognition.lang = 'zh-CN'; 
     recognition.continuous = true;
     recognition.interimResults = true;
 
     recognition.onstart = () => {
         if (debugEl) debugEl.innerText = "🎤 麦克风已就绪，请说话...";
-        if (voiceStatusEl) voiceStatusEl.innerText = "正在聆听";
+        if (voiceStatusEl) voiceStatusEl.innerText = "正在聆听...";
     };
 
     recognition.onerror = (event) => {
@@ -252,28 +253,35 @@ function initSpeech() {
             }
         }
 
-        const text = (finalTranscript || interimTranscript).toLowerCase();
-        if (debugEl) debugEl.innerText = `听到: "${text}"`;
-        if (voiceStatusEl) voiceStatusEl.innerText = `听到: "${text.split(' ').pop()}"`; // Show last word
+        // Combine text and show it exactly as heard
+        const rawText = (finalTranscript || interimTranscript).trim();
+        const text = rawText.toLowerCase();
+        
+        // Ensure UI updates immediately with what the browser actually hears
+        if (rawText.length > 0) {
+            if (debugEl) debugEl.innerText = `[原声抓取]: "${rawText}"`;
+            if (voiceStatusEl) voiceStatusEl.innerText = `听见: ${rawText.substring(0, 10)}`;
+        }
 
         // Keywords for MASK mode
-        const maskKeywords = ['mask', 'make', 'mac', 'marc', '面具', '马克', '码可'];
+        const maskKeywords = ['mask', 'make', 'mac', 'marc', '面具', '马', '码', '吗', '麦'];
         // Keywords for FINGER mode
-        const fingerKeywords = ['finger', 'hand', 'fine', 'thing', '手指', '手势', '返回'];
+        const fingerKeywords = ['finger', 'hand', 'fine', 'thing', '手指', '手势', '返回', '手'];
 
         if (maskKeywords.some(k => text.includes(k))) {
             if (currentMode !== 'MASK') {
                 switchMode('MASK');
-                if (debugEl) debugEl.innerText = "✅ 已切换到: MASK 模式";
+                if (debugEl) debugEl.innerText = "✅ 命中关键词！已切换到: MASK 模式";
             }
         } else if (fingerKeywords.some(k => text.includes(k))) {
             if (currentMode !== 'FINGER') {
                 switchMode('FINGER');
-                if (debugEl) debugEl.innerText = "✅ 已切换到: FINGER 模式";
+                if (debugEl) debugEl.innerText = "✅ 命中关键词！已切换到: FINGER 模式";
             }
         }
     };
 
+    // If it stops, restart immediately
     recognition.onend = () => {
         try {
             recognition.start();
