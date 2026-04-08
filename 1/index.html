@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D粒子声控交互系统</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #050510;
+            font-family: sans-serif;
+        }
+        #webcam {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 240px;
+            height: 180px;
+            border-radius: 8px;
+            z-index: 10;
+            transform: scaleX(-1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        #ui {
+            position: absolute;
+            top: 200px;
+            left: 10px;
+            color: rgba(255, 255, 255, 0.8);
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 8px;
+            pointer-events: none;
+            width: 280px;
+        }
+        .status { margin: 5px 0; }
+        .highlight { color: #00ffcc; font-weight: bold; }
+        .mode-active { color: #ffcc00; text-shadow: 0 0 5px #ffcc00; }
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            z-index: 20;
+        }
+        #speech-indicator {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 255, 204, 0.2);
+            color: #00ffcc;
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: 1px solid #00ffcc;
+            font-size: 14px;
+            z-index: 10;
+            transition: all 0.3s;
+        }
+        #speech-debug {
+            font-size: 11px;
+            color: #888;
+            margin-top: 4px;
+            text-align: center;
+        }
+    </style>
+    
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+<body>
+    <div id="loading">加载AI模型中...</div>
+    <video id="webcam" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
+    
+    <div id="speech-indicator">
+        <div>🎤 正在聆听关键词...</div>
+        <div id="speech-debug">等待语音输入...</div>
+    </div>
+
+    <div id="ui">
+        <div class="status">当前模式: <span id="current-mode" class="mode-active">FINGER (手势)</span></div>
+        <div class="status">手势识别状态: <span id="hand-status" class="highlight">等待中</span></div>
+        <div class="status">麦克风识别状态: <span id="voice-status" class="highlight">准备就绪</span></div>
+        <div class="status" style="font-size: 12px; margin-top: 10px; color: #aaa; line-height: 1.5;">
+            <strong>🎙️ 声控指令:</strong><br>
+            - 喊 <strong>"Mask"</strong> (或 Mask): 开启【粒子面具】模式<br>
+            - 喊 <strong>"Finger"</strong>: 切换回【手势控制】模式<br><br>
+            <strong>🎭 面具模式玩法:</strong><br>
+            - 粒子会贴合在你的五官上<br>
+            - 张嘴、眨眼会让粒子产生动态反应<br><br>
+            <strong>🖐️ 手势模式玩法:</strong><br>
+            - 1/2/3/比心/星星/引力/斥力
+        </div>
+    </div>
+
+    <script type="module" src="./main.js"></script>
+</body>
+</html>
