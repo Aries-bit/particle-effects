@@ -12,9 +12,11 @@ let clock = new THREE.Clock();
 
 const states = {
     DEFAULT: new Float32Array(numPoints * 3),
+    ZERO: new Float32Array(numPoints * 3),
     ONE: new Float32Array(numPoints * 3),
     TWO: new Float32Array(numPoints * 3),
     THREE: new Float32Array(numPoints * 3),
+    FOUR: new Float32Array(numPoints * 3),
     HEART: new Float32Array(numPoints * 3),
     STAR: new Float32Array(numPoints * 3),
     FACE: new Float32Array(numPoints * 3) // For Face Mask
@@ -135,9 +137,11 @@ function loadFontsAndTargets() {
                 }
             }
 
-            createTextTargets('(1)', states.ONE);
-            createTextTargets('(2)', states.TWO);
-            createTextTargets('(3)', states.THREE);
+            createTextTargets('0', states.ZERO);
+            createTextTargets('1', states.ONE);
+            createTextTargets('2', states.TWO);
+            createTextTargets('3', states.THREE);
+            createTextTargets('4', states.FOUR);
             
             // Create Heart Targets
             for (let i = 0; i < numPoints; i++) {
@@ -425,15 +429,24 @@ function processHandLandmarks(results) {
         const isThumbOut = Math.hypot(landmarks[4].x - landmarks[5].x, landmarks[4].y - landmarks[5].y) > 0.08;
 
         if (!isTwoHandHeart && i === 0) {
-            if (isIndexUp && isThumbOut && !isMiddleUp) mainHandState = 'STAR';
-            else if (isIndexUp && !isMiddleUp && !isRingUp) {
+            // Star gesture: Index and Pinky up (Rock/Spider-man sign)
+            if (isIndexUp && !isMiddleUp && !isRingUp && isPinkyUp) {
+                mainHandState = 'STAR'; 
+            } else if (!isIndexUp && !isMiddleUp && !isRingUp && !isPinkyUp) {
+                mainHandState = 'ZERO'; // Fist
+            } else if (isIndexUp && !isMiddleUp && !isRingUp && !isPinkyUp && !isThumbOut) {
                 mainHandState = 'ONE';
                 iPoint.set(-(landmarks[8].x - 0.5) * width, -(landmarks[8].y - 0.5) * height, 0);
                 force = 0.8;
-            } else if (isIndexUp && isMiddleUp && !isRingUp) mainHandState = 'TWO';
-            else if (isIndexUp && isMiddleUp && isRingUp && !isPinkyUp) mainHandState = 'THREE';
+            } else if (isIndexUp && isMiddleUp && !isRingUp && !isPinkyUp) {
+                mainHandState = 'TWO';
+            } else if (isIndexUp && isMiddleUp && isRingUp && !isPinkyUp) {
+                mainHandState = 'THREE';
+            } else if (isIndexUp && isMiddleUp && isRingUp && isPinkyUp && !isThumbOut) {
+                mainHandState = 'FOUR';
+            }
             
-            if (mainHandState === 'DEFAULT' && isIndexUp && isMiddleUp && isRingUp && isPinkyUp && avgDist > 0.3) {
+            if (mainHandState === 'DEFAULT' && isIndexUp && isMiddleUp && isRingUp && isPinkyUp && isThumbOut && avgDist > 0.3) {
                 iPoint.set(-(landmarks[9].x - 0.5) * width, -(landmarks[9].y - 0.5) * height, 0);
                 force = -1.5;
             }
@@ -447,7 +460,24 @@ function processHandLandmarks(results) {
     
     const avgOpenness = totalOpenness / results.landmarks.length;
     targetScale = THREE.MathUtils.clamp(THREE.MathUtils.mapLinear(avgOpenness, 0.1, 0.3, 0.5, 2.0), 0.3, 3.0);
-    document.getElementById('hand-status').innerText = currentState;
+    
+    const uiStateMap = {
+        'DEFAULT': '无',
+        'ZERO': '数字 0 (握拳)',
+        'ONE': '数字 1 (引力)',
+        'TWO': '数字 2',
+        'THREE': '数字 3',
+        'FOUR': '数字 4',
+        'STAR': '星星 (食指和小指)',
+        'HEART': '爱心 (双手指尖相接)'
+    };
+    
+    let stateText = uiStateMap[currentState] || currentState;
+    if (interactionForce < 0) {
+        stateText += ' + 掌心斥力';
+    }
+    
+    document.getElementById('hand-status').innerText = stateText;
 }
 
 // ---- Animation Loop ----
