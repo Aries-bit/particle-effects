@@ -68,6 +68,12 @@
             z-index: 10;
             transition: all 0.3s;
         }
+        #speech-debug {
+            font-size: 11px;
+            color: #888;
+            margin-top: 4px;
+            text-align: center;
+        }
     </style>
     
     <script type="importmap">
@@ -84,7 +90,10 @@
     <video id="webcam" autoplay playsinline></video>
     <canvas id="canvas"></canvas>
     
-    <div id="speech-indicator">🎤 正在聆听关键词: "Mark" 或 "Finger"</div>
+    <div id="speech-indicator">
+        <div>🎤 正在聆听关键词...</div>
+        <div id="speech-debug">等待语音输入...</div>
+    </div>
 
     <div id="ui">
         <div class="status">当前模式: <span id="current-mode" class="mode-active">FINGER (手势)</span></div>

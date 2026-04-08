@@ -215,33 +215,74 @@ async function initMediaPipe() {
 // ---- Voice Recognition ----
 function initSpeech() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const debugEl = document.getElementById('speech-debug');
+    
     if (!SpeechRecognition) {
-        console.warn("Speech Recognition not supported in this browser.");
+        if (debugEl) debugEl.innerText = "抱歉，此浏览器不支持语音识别";
         return;
     }
 
     const recognition = new SpeechRecognition();
-    recognition.lang = 'en-US';
+    // Use 'en-US' but add Chinese detection by trying to match sounds
+    recognition.lang = 'en-US'; 
     recognition.continuous = true;
-    recognition.interimResults = false;
+    recognition.interimResults = true; // Show results as you speak
+
+    recognition.onstart = () => {
+        if (debugEl) debugEl.innerText = "🎤 麦克风已就绪，请说话...";
+    };
+
+    recognition.onerror = (event) => {
+        console.error("Speech Error:", event.error);
+        if (debugEl) debugEl.innerText = "❌ 语音识别出错: " + event.error;
+    };
 
     recognition.onresult = (event) => {
-        const last = event.results.length - 1;
-        const text = event.results[last][0].transcript.trim().toLowerCase();
-        console.log("Speech detected:", text);
+        let interimTranscript = '';
+        let finalTranscript = '';
 
-        if (text.includes('mark') || text.includes('mask') || text.includes('mark')) {
-            switchMode('MASK');
-        } else if (text.includes('finger') || text.includes('hand')) {
-            switchMode('FINGER');
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+                finalTranscript += event.results[i][0].transcript;
+            } else {
+                interimTranscript += event.results[i][0].transcript;
+            }
+        }
+
+        const text = (finalTranscript || interimTranscript).toLowerCase();
+        if (debugEl) debugEl.innerText = `听到: "${text}"`;
+
+        // Keywords for MASK mode
+        const maskKeywords = ['mark', 'mask', 'make', 'mac', 'marc', '面具', '马克', '码可'];
+        // Keywords for FINGER mode
+        const fingerKeywords = ['finger', 'hand', 'fine', 'thing', '手指', '手势', '返回'];
+
+        if (maskKeywords.some(k => text.includes(k))) {
+            if (currentMode !== 'MASK') {
+                switchMode('MASK');
+                if (debugEl) debugEl.innerText = "✅ 已切换到: MASK 模式";
+            }
+        } else if (fingerKeywords.some(k => text.includes(k))) {
+            if (currentMode !== 'FINGER') {
+                switchMode('FINGER');
+                if (debugEl) debugEl.innerText = "✅ 已切换到: FINGER 模式";
+            }
         }
     };
 
     recognition.onend = () => {
-        recognition.start(); // Keep listening
+        try {
+            recognition.start(); // Restart if it stops
+        } catch (e) {
+            console.log("Restarting recognition...");
+        }
     };
 
-    recognition.start();
+    try {
+        recognition.start();
+    } catch (e) {
+        console.error("Failed to start speech recognition:", e);
+    }
 }
 
 function switchMode(mode) {
