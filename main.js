@@ -216,25 +216,28 @@ async function initMediaPipe() {
 function initSpeech() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const debugEl = document.getElementById('speech-debug');
+    const voiceStatusEl = document.getElementById('voice-status');
     
     if (!SpeechRecognition) {
         if (debugEl) debugEl.innerText = "抱歉，此浏览器不支持语音识别";
+        if (voiceStatusEl) voiceStatusEl.innerText = "不支持识别";
         return;
     }
 
     const recognition = new SpeechRecognition();
-    // Use 'en-US' but add Chinese detection by trying to match sounds
     recognition.lang = 'en-US'; 
     recognition.continuous = true;
-    recognition.interimResults = true; // Show results as you speak
+    recognition.interimResults = true;
 
     recognition.onstart = () => {
         if (debugEl) debugEl.innerText = "🎤 麦克风已就绪，请说话...";
+        if (voiceStatusEl) voiceStatusEl.innerText = "正在聆听";
     };
 
     recognition.onerror = (event) => {
         console.error("Speech Error:", event.error);
         if (debugEl) debugEl.innerText = "❌ 语音识别出错: " + event.error;
+        if (voiceStatusEl) voiceStatusEl.innerText = "识别错误";
     };
 
     recognition.onresult = (event) => {
@@ -251,9 +254,10 @@ function initSpeech() {
 
         const text = (finalTranscript || interimTranscript).toLowerCase();
         if (debugEl) debugEl.innerText = `听到: "${text}"`;
+        if (voiceStatusEl) voiceStatusEl.innerText = `听到: "${text.split(' ').pop()}"`; // Show last word
 
         // Keywords for MASK mode
-        const maskKeywords = ['mark', 'mask', 'make', 'mac', 'marc', '面具', '马克', '码可'];
+        const maskKeywords = ['mask', 'make', 'mac', 'marc', '面具', '马克', '码可'];
         // Keywords for FINGER mode
         const fingerKeywords = ['finger', 'hand', 'fine', 'thing', '手指', '手势', '返回'];
 
@@ -272,7 +276,7 @@ function initSpeech() {
 
     recognition.onend = () => {
         try {
-            recognition.start(); // Restart if it stops
+            recognition.start();
         } catch (e) {
             console.log("Restarting recognition...");
         }
@@ -342,7 +346,7 @@ function processHandLandmarks(results) {
         currentState = 'DEFAULT';
         targetScale = 1.0;
         interactionForce = 0;
-        document.getElementById('gesture-state').innerText = '无';
+        document.getElementById('hand-status').innerText = '无';
         return;
     }
 
@@ -408,7 +412,7 @@ function processHandLandmarks(results) {
     
     const avgOpenness = totalOpenness / results.landmarks.length;
     targetScale = THREE.MathUtils.clamp(THREE.MathUtils.mapLinear(avgOpenness, 0.1, 0.3, 0.5, 2.0), 0.3, 3.0);
-    document.getElementById('gesture-state').innerText = currentState;
+    document.getElementById('hand-status').innerText = currentState;
 }
 
 // ---- Animation Loop ----
