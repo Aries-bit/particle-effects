@@ -476,7 +476,7 @@ function processHandLandmarks(results) {
         'TWO': '数字 2',
         'THREE': '数字 3',
         'FOUR': '数字 4',
-        'MIDDLE': '🖕 中指 (F**K)',
+        'MIDDLE': '🖕 中指 (FUCK)',
         'STAR': '星星 (食指和小指)',
         'HEART': '爱心 (双手指尖相接)'
     };
