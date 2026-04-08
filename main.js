@@ -17,6 +17,7 @@ const states = {
     TWO: new Float32Array(numPoints * 3),
     THREE: new Float32Array(numPoints * 3),
     FOUR: new Float32Array(numPoints * 3),
+    MIDDLE: new Float32Array(numPoints * 3), // For middle finger
     HEART: new Float32Array(numPoints * 3),
     STAR: new Float32Array(numPoints * 3),
     FACE: new Float32Array(numPoints * 3) // For Face Mask
@@ -142,6 +143,9 @@ function loadFontsAndTargets() {
             createTextTargets('2', states.TWO);
             createTextTargets('3', states.THREE);
             createTextTargets('4', states.FOUR);
+            
+            // Text for Middle Finger
+            createTextTargets('F**K', states.MIDDLE);
             
             // Create Heart Targets
             for (let i = 0; i < numPoints; i++) {
@@ -429,8 +433,12 @@ function processHandLandmarks(results) {
         const isThumbOut = Math.hypot(landmarks[4].x - landmarks[5].x, landmarks[4].y - landmarks[5].y) > 0.08;
 
         if (!isTwoHandHeart && i === 0) {
+            // Middle finger gesture
+            if (!isIndexUp && isMiddleUp && !isRingUp && !isPinkyUp) {
+                mainHandState = 'MIDDLE';
+            }
             // Star gesture: Index and Pinky up (Rock/Spider-man sign)
-            if (isIndexUp && !isMiddleUp && !isRingUp && isPinkyUp) {
+            else if (isIndexUp && !isMiddleUp && !isRingUp && isPinkyUp) {
                 mainHandState = 'STAR'; 
             } else if (!isIndexUp && !isMiddleUp && !isRingUp && !isPinkyUp) {
                 mainHandState = 'ZERO'; // Fist
@@ -468,6 +476,7 @@ function processHandLandmarks(results) {
         'TWO': '数字 2',
         'THREE': '数字 3',
         'FOUR': '数字 4',
+        'MIDDLE': '🖕 中指 (F**K)',
         'STAR': '星星 (食指和小指)',
         'HEART': '爱心 (双手指尖相接)'
     };
